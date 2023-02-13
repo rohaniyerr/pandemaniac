@@ -1,15 +1,14 @@
 import networkx as nx
 from networkx import average_clustering, clustering, triangles
 from networkx import degree_centrality, closeness_centrality, betweenness_centrality
-import numpy as np
 import json
 import random
 
-graph_file = 'graphs/RR.5.10.json'
+graph_file = 'J.10.30.json'
 
 def read_graph(graph_file):
     G = nx.Graph()
-    with open(graph_file) as jsonfile:
+    with open('graphs/' + graph_file) as jsonfile:
         adj_list = json.load(jsonfile)
         for i in adj_list:
             G.add_node(int(i))
@@ -17,15 +16,14 @@ def read_graph(graph_file):
                 G.add_edge(int(i),int(j))
     x = graph_file.split('.')
     seed = int(x[1])
-    graph_type = int(x[2])
-    return G, seed, graph_type
+    return G, seed
 
 def random_nodes(G, seed):
     nodes = list(G.nodes)
     return random.sample(nodes, seed)
 
 def output_strategy(G, seed, graph_file):
-    output_file = 'submissions' + ''.join(graph_file.split('.')[:3]) + '.txt'
+    output_file = 'submissions/' + ''.join(graph_file.split('.')[:3]) + '.txt'
     strategy = ''
     for _ in range(50):
         nodes = random_nodes(G, seed)
@@ -36,5 +34,5 @@ def output_strategy(G, seed, graph_file):
     f.close()
 
 if __name__ == '__main__':
-    G, seed, graph_type = read_graph(graph_file)
+    G, seed = read_graph(graph_file)
     output_strategy(G, seed, graph_file)
