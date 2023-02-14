@@ -40,24 +40,37 @@ def output_random_strategy(G, seed, graph_file):
     f.close()
 
 
-def clustering_strategy(G, measure):
-    scores = None
-    if measure == 'square':
-        scores = square_clustering(G)
-    elif measure == 'clustering':
-        scores = clustering(G)
-    elif measure == 'triangle':
-        scores = triangles(G)
-    else:
-        return None
+def triangle_strategy(G):
+    scores = triangles(G)
     centrality = [(scores[node], node) for node in scores]
     nlargest = heapq.nlargest(seed, centrality)
     strategy = [node for (_, node) in nlargest]
     return strategy
 
+def combine_cluster_centrality(G, seed, c_type):
+    clust_strat = set(triangle_strategy(G))
+    centrality_strat = set(centrality_strategy(G, seed, graph_file, c_type))
+    mixed_strat = clust_strat.intersection(centrality_strat)
+    centrality_leftover = heapq.heapify(list(centrality_strat.difference(mixed_strat)))
+    clust_leftover = heapq.heapify(list(clust_strat.difference(mixed_strat)))
+    if len(mixed_strat) < seed:
+        while len(mixed_strat) < seed:
+            coin_flip = random.random()
+            if coin_flip < 0.5:
+                mixed_strat.add(heapq.heappop(centrality_leftover))
+            else:
+                mixed_strat.add(heapq.heappop(clust_leftover))
+    return list(mixed_strat)
+
+def output_to_submission(graph_file, strategy, c_type):
+    output_file = 'submissions/' + ''.join(graph_file.split('.')[:3]) + c_type + '.txt'
+    strategy_string = ('\n'.join(strategy) + '\n') * seed
+    f = open(output_file, 'w')
+    f.write(strategy_string)
+    f.close()
 
 
-def centrality_strategy(G, seed, graph_file, c_type):
+def centrality_strategy(G, seed, c_type):
     c_scores = None
     if c_type == 'closeness':
         c_scores = closeness_centrality(G)
@@ -73,12 +86,6 @@ def centrality_strategy(G, seed, graph_file, c_type):
     centrality = [(c_scores[node], node) for node in c_scores]
     nlargest = heapq.nlargest(seed, centrality)
     strategy = [node for (_, node) in nlargest]
-    if not RUN_ALL_GRAPHS:
-        output_file = 'submissions/' + ''.join(graph_file.split('.')[:3]) + c_type + '.txt'
-        strategy_string = ('\n'.join(strategy) + '\n') * seed
-        f = open(output_file, 'w')
-        f.write(strategy_string)
-        f.close()
     return strategy
 
 if __name__ == '__main__':
@@ -89,17 +96,15 @@ if __name__ == '__main__':
         G, seed, adj_list = read_graph(graph_file)
         #output_strategy(G, seed, graph_file)
         cent_types = ['closeness', 'betweeness', 'degree', 'eigenvector']
-        clust_types = ['square', 'clustering', 'triangle']
-
-        measures = clust_types
-
+        # clust_types = ['square', 'clustering', 'triangle']
+        measures = cent_types
         max_score, best_measure = float('-INF'), None
         for a in measures:
             for b in measures:
                 if a != b:
                     strategy_dict = {}
-                    strategy_dict[a] = clustering_strategy(G, a)
-                    strategy_dict[b] = clustering_strategy(G, b)
+                    strategy_dict[a] = combine_cluster_centrality(G, seed, a)
+                    strategy_dict[b] = combine_cluster_centrality(G, seed, b)
                     result = sim.run(adj_list, strategy_dict)
                     print(file, result)
                     new_max = max(list(result.values()))
