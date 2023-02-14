@@ -1,7 +1,8 @@
 import networkx as nx
 import json
 import sim
-from testing import combine_cluster_centrality, read_graph
+from testing import combine_cluster_centrality, read_graph, max_neighbors_strat, copy_ta_strat2
+import matplotlib.pyplot as plt
 
 TA_BASE_FILE = 'ta_strats/RR.10.50-TA_baseline.json'
 TA_TARGET_FILE = 'ta_strats/RR.10.50-TA_target.json'
@@ -21,7 +22,21 @@ if __name__ == '__main__':
     ta_strats = {'base': ta_base, 'target': ta_target, 'hard': ta_hard}
     for level in ta_strats:
         strat_dict = {}
-        strat_dict['strategy'] = combine_cluster_centrality(G, seed, c_type='closeness')
         strat_dict[level] = ta_strats[level]
-        result = sim.run(adj_list, strat_dict)
-        print(result)
+        wins = 0 
+        draws = 0
+        rounds = 1
+        for _ in range(rounds):
+            #strat_dict['strategy'] = combine_cluster_centrality(G, seed, c_type='betweeness')
+            #strat_dict['strategy'] = copy_ta_strat2(G, seed)
+            result = sim.run(adj_list, strat_dict)
+            if result['strategy'] > result[level]:
+                wins += 1
+            elif result['strategy'] == result[level]:
+                draws += 1
+            print(result)
+        losses = rounds - wins - draws
+        print(f'{level}: {wins}-{draws}-{losses}')
+    #plt.figure()
+    #nx.draw(G)
+    #plt.show()

@@ -1,6 +1,6 @@
 import networkx as nx
 from networkx import square_clustering, clustering, triangles
-from networkx import degree_centrality, closeness_centrality, betweenness_centrality, eigenvector_centrality
+from networkx import degree_centrality, closeness_centrality, pagerank, betweenness_centrality, eigenvector_centrality
 import json
 import random
 import sim
@@ -65,13 +65,15 @@ def combine_cluster_centrality(G, seed, c_type):
             mixed_strat.add(node)
     return list(mixed_strat)
 
-def output_to_submission(graph_file, strategy, c_type):
-    output_file = 'submissions/' + ''.join(graph_file.split('.')[:3]) + c_type + '.txt'
-    strategy_string = ('\n'.join(strategy) + '\n') * seed
+def output_to_submission(graph_file, strategy, seed, strategy_name):
+    output_file = 'submissions/' + ''.join(graph_file.split('.')[:3]) + strategy_name + '.txt'
+    strategy_string = ''
+    for _ in range(50):
+        for node in strategy:
+            strategy_string += node + '\n'
     f = open(output_file, 'w')
     f.write(strategy_string)
     f.close()
-
 
 def centrality_strategy(G, seed, c_type):
     c_scores = None
@@ -91,6 +93,30 @@ def centrality_strategy(G, seed, c_type):
     strategy = [node for (_, node) in nlargest]
     return strategy
 
+def max_neighbors_strat(G, seed):
+    degrees = closeness_centrality(G)
+    highest_degree_node = max(degrees, key = degrees.get)
+    neighbors = nx.neighbors(G, highest_degree_node)
+    neighbor_degrees = [(degrees[node], node) for node in neighbors]
+    nlargest = heapq.nlargest(seed-1, neighbor_degrees)
+    strat = [node for (_,node) in nlargest]
+    strat.append(highest_degree_node)
+    return strat
+
+def copy_ta_strat2(G, seed):
+    degrees = closeness_centrality(G)
+    degrees_sorted = sorted([(degrees[node], node) for node in degrees], reverse=True)
+    max2 = [u for (_,u) in degrees_sorted[:2]]
+    strat = []
+    for node in max2:
+        neighbors = nx.neighbors(G, node)
+        neighbor_degrees = [(degrees[u], u) for u in neighbors]
+        nlargest = heapq.nlargest((seed-2)//2, neighbor_degrees)
+        for _,u in nlargest:
+            strat.append(u)
+        strat.append(node)
+    return strat
+
 if __name__ == '__main__':
     for file in os.listdir(GRAPH_DIR):
         graph_file = os.path.join(GRAPH_DIR, file)
@@ -102,7 +128,16 @@ if __name__ == '__main__':
         # clust_types = ['square', 'clustering', 'triangle']
         measures = cent_types
         max_score, best_measure = float('-INF'), None
+        strategy_dict = {}
+        ta_hard = max_neighbors_strat(G, seed)
+        strategy_dict['ta_hard'] = ta_hard
+        print(f'{file}:')
         for a in measures:
+            strategy_dict['nlargest'] = centrality_strategy(G, seed, a)
+            result = sim.run(adj_list, strategy_dict)
+            print(f'{a}:')
+            print(result)
+            continue
             for b in measures:
                 if a != b:
                     strategy_dict = {}
@@ -115,6 +150,6 @@ if __name__ == '__main__':
                         best_measure = max(result, key=result.get)
                         max_score = new_max
 
-        print(f'{best_measure} clustering wins for {file} with {max_score} nodes')
-        print(f'That is {max_score*100/len(G.nodes)}% of the graph')
-        print('---------------------------')
+        #print(f'{best_measure} clustering wins for {file} with {max_score} nodes')
+        #print(f'That is {max_score*100/len(G.nodes)}% of the graph')
+        #print('---------------------------')
