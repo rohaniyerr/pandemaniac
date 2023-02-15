@@ -43,12 +43,20 @@ def clique_strategy(G, seed):
 
 def communicability_strategy(G, seed):
     communicability = nx.communicability_exp(G)
-    centrality_measure = nx.betweenness_centrality(G)
+    centrality_measure = nx.harmonic_centrality(G)
     highest_degree_node = max(centrality_measure, key=centrality_measure.get)
     max_node_comm = communicability[highest_degree_node]
     nlargest = heapq.nlargest(seed, [(val, node) for node, val in max_node_comm.items()])
     strategy = [node for (_, node) in nlargest]
     return strategy
+
+def voterank_strategy(G, seed):
+    rank = nx.voterank(G, seed)
+    com_strat = communicability_strategy(G, seed)
+    while len(rank) < seed:
+        for node in com_strat:
+            rank.append(node)
+    return rank
 
 
 

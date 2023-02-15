@@ -1,6 +1,6 @@
 import networkx as nx
 from networkx import square_clustering, clustering, triangles
-from networkx import degree_centrality, closeness_centrality, betweenness_centrality, eigenvector_centrality
+from networkx import degree_centrality, closeness_centrality, betweenness_centrality, eigenvector_centrality, pagerank
 import json
 import random
 import sim
@@ -28,7 +28,7 @@ def spectral_strategy(G, seed):
     labels = spectral_clustering(A, 2)
     clust_0 = {node:labels[i] for i, node in enumerate(list(G.nodes)) if labels[i]== 0}
     clust_1 = {node:labels[i] for i, node in enumerate(list(G.nodes)) if labels[i]== 1}
-    degrees = degree_centrality(G)
+    degrees = pagerank(G)
     degree_clust_0 = {node:degrees[str(node)] for node in clust_0}
     degree_clust_1 = {node:degrees[str(node)] for node in clust_1}
     highest_node_0 = max(degree_clust_0, key = degree_clust_0.get)

@@ -65,7 +65,7 @@ def combine_cluster_centrality(G, seed, c_type):
             mixed_strat.add(node)
     return list(mixed_strat)
 
-def output_to_submission(graph_file, strategy, seed, strategy_name):
+def output_to_submission(graph_file, strategy, strategy_name):
     output_file = 'submissions/' + ''.join(graph_file.split('.')[:3]) + strategy_name + '.txt'
     strategy_string = ''
     for _ in range(50):
