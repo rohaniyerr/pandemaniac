@@ -9,7 +9,10 @@ import heapq
 from sklearn.cluster import KMeans, SpectralClustering
 import os
 import testing
-
+from sklearn import cluster
+from sklearn import manifold
+from collections import defaultdict
+import numpy as np
 GRAPH_DIR = 'graphs'
 RUN_ALL_GRAPHS = False
 SINGLE_GRAPH = 'J.5.10.json'
@@ -43,6 +46,9 @@ def spectral_strategy(G, seed):
     strategy.extend([node for (_,node) in nlargest_0]+[node for (_,node) in nlargest_1])
     return strategy
 
+
+
+
 def plot_clustering(G, k):
     A = nx.adjacency_matrix(G)
     Klabels, centers = kmeans(A, k)
@@ -66,7 +72,6 @@ if __name__=='__main__':
     else:
         G, seed, adj_list = testing.read_graph(GRAPH_DIR+'/'+SINGLE_GRAPH)
         spectral_ord = nx.spectral_ordering(G)
-
         
         
 

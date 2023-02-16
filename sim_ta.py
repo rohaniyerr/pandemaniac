@@ -3,8 +3,9 @@ import json
 import sim
 from testing import combine_cluster_centrality, read_graph, max_neighbors_strat, copy_ta_strat2
 from spectral_clustering import spectral_strategy
-from other_strategies import dominating_strategy, clique_strategy, communicability_strategy, voterank_strategy
+from other_strategies import dominating_strategy, clique_strategy, communicability_strategy, mixed_strategy
 import matplotlib.pyplot as plt
+from spectral_clustering import spectral_partition_closeness
 
 TA_BASE_FILE = 'ta_strats/RR.10.51-TA_baseline.json'
 TA_TARGET_FILE = 'ta_strats/RR.10.51-TA_target.json'
