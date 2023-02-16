@@ -9,8 +9,6 @@ GRAPH_FILE = 'J.25.33.json'
 if __name__ == '__main__':
     G, seed, adj_list = read_graph('graphs/' + GRAPH_FILE)
     output_random_strategy(G, seed, GRAPH_FILE)
-
-def temp():
     #strat = max_neighbors_strat(G, seed)
     #strat = centrality_strategy(G, seed, 'eigenvector')
     com_strat = communicability_strategy(G, seed)
