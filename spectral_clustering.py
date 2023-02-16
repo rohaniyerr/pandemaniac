@@ -26,6 +26,7 @@ def spectral_clustering(X, k):
                               assign_labels='discretize',
                               affinity='nearest_neighbors').fit(X)
     return spec.labels_
+
 def spectral_strategy(G, seed):
     A = nx.adjacency_matrix(G)
     labels = spectral_clustering(A, 2)
@@ -45,9 +46,6 @@ def spectral_strategy(G, seed):
     nlargest_1 = heapq.nlargest(seed//2-1, neighbor_degrees_1)
     strategy.extend([node for (_,node) in nlargest_0]+[node for (_,node) in nlargest_1])
     return strategy
-
-
-
 
 def plot_clustering(G, k):
     A = nx.adjacency_matrix(G)
@@ -72,12 +70,3 @@ if __name__=='__main__':
     else:
         G, seed, adj_list = testing.read_graph(GRAPH_DIR+'/'+SINGLE_GRAPH)
         spectral_ord = nx.spectral_ordering(G)
-        
-        
-
-
-
-
-
-
-            
