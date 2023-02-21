@@ -87,7 +87,7 @@ def mixed_strategy2(G, seed):
     tris= triangles(G)
     eig_cen = eigenvector_centrality(G)
     tsum = sum(tris.values())
-    combined_scores = {node:+0.75*eig_cen[node]+0.25*tris[node]/tsum for node in G.nodes}
+    combined_scores = {node:+eig_cen[node]+tris[node]/tsum for node in G.nodes}
     sorted_scores = sorted(combined_scores.items(), key=lambda scores:scores[1], reverse=True)
     res = [sorted_scores[i][0] for i in range(seed)]
     return res

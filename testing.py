@@ -103,7 +103,7 @@ def max_neighbors_strat(G, seed):
     strat.append(highest_degree_node)
     return strat
 
-def copy_ta_strat2(G, seed):
+def max_neighbors_strat2(G, seed):
     degrees = closeness_centrality(G)
     degrees_sorted = sorted([(degrees[node], node) for node in degrees], reverse=True)
     max2 = [u for (_,u) in degrees_sorted[:2]]

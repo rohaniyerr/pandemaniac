@@ -1,10 +1,10 @@
 from testing import max_neighbors_strat, centrality_strategy, output_to_submission, read_graph
 from testing import output_random_strategy
-from other_strategies import communicability_strategy, mixed_strategy3, mixed_strategy2
+from other_strategies import communicability_strategy, mixed_strategy2, mixed_strategy3
 from spectral_clustering import spectral_strategy
 import sim
 
-GRAPH_FILE = 'J.25.33.json'
+GRAPH_FILE = 'J.20.35.json'
 
 if __name__ == '__main__':
     G, seed, adj_list = read_graph('graphs/' + GRAPH_FILE)
@@ -16,11 +16,7 @@ if __name__ == '__main__':
     mixed_strat = mixed_strategy3(G, seed)
     max_strat = max_neighbors_strat(G, seed)
     base_strat = centrality_strategy(G, seed, 'degree')
-    print(com_strat)
-    print(spec_strat)
-    print(mixed_strat)
-    print(max_strat)
-    strats = [com_strat, spec_strat, mixed_strat, max_strat]
+    strats = [com_strat, spec_strat, mixed_strat, max_strat, base_strat]
     diffs = {i:0 for i in range(len(strats))}
     for i in range(len(strats)):
         for j in range(i+1, len(strats)):
@@ -39,11 +35,6 @@ if __name__ == '__main__':
         if diffs[i] > max_diff:
             max_diff = diffs[i]
             best_strat = i
-        if diffs[i] == max_diff:
-            resulti = sim.run(adj_list, {i:strats[i], 'base':base_strat})
-            resultmax = sim.run(adj_list, {best_strat:strats[best_strat], 'base':base_strat})
-            if resulti[i] > resultmax[best_strat]:
-                best_strat = i
     strat = strats[best_strat]
     print(strat)
     print(sim.run(adj_list, {best_strat:strat, 'base':base_strat}))

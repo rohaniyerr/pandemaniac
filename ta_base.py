@@ -1,7 +1,7 @@
 import networkx as nx
 import json
 import sim
-from testing import combine_cluster_centrality, read_graph, max_neighbors_strat, copy_ta_strat2, centrality_strategy
+from testing import combine_cluster_centrality, read_graph, max_neighbors_strat, max_neighbors_strat2, centrality_strategy
 from spectral_clustering import spectral_strategy
 from other_strategies import dominating_strategy, clique_strategy, communicability_strategy, mixed_strategy, mixed_strategy2, mixed_strategy3
 import matplotlib.pyplot as plt
