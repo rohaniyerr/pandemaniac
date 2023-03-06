@@ -28,8 +28,9 @@ def dominating_strategy(G, seed):
     return strategy
 
 def clique_strategy(G, seed):
-    cliques = greedy_modularity_communities(G, n_communities=seed)
+    cliques = greedy_modularity_communities(G)
     centrality_measure = nx.degree_centrality(G)
+    comm_strat = communicability_strategy(G, seed)
     highest_degree_representatives = {}
     for clique in cliques:
         max_degree, rep = float('-INF'), None
@@ -40,11 +41,14 @@ def clique_strategy(G, seed):
         highest_degree_representatives[rep] = max_degree
     # nlargest = heapq.nlargest(seed, [(degree, node) for node, degree in highest_degree_representatives.items()])
     strategy = [node for node in highest_degree_representatives]
+    if len(strategy) < seed:
+        diff = seed - len(strategy)
+        strategy.extend(comm_strat[:diff])
     return strategy
 
 def communicability_strategy(G, seed):
     communicability = nx.communicability_exp(G)
-    centrality_measure = nx.harmonic_centrality(G)
+    centrality_measure = nx.betweenness_centrality(G)
     highest_degree_node = max(centrality_measure, key=centrality_measure.get)
     max_node_comm = communicability[highest_degree_node]
     nlargest = heapq.nlargest(seed, [(val, node) for node, val in max_node_comm.items()])
@@ -77,7 +81,28 @@ def mixed_strategy(G, seed):
     res = [sorted_scores[i][0] for i in range(seed)]
     return res
 
+def mixed_strategy2(G, seed):
+    deg_cen = degree_centrality(G)
+    close_cen = closeness_centrality(G)
+    tris= triangles(G)
+    eig_cen = eigenvector_centrality(G)
+    tsum = sum(tris.values())
+    combined_scores = {node:+eig_cen[node]+tris[node]/tsum for node in G.nodes}
+    sorted_scores = sorted(combined_scores.items(), key=lambda scores:scores[1], reverse=True)
+    res = [sorted_scores[i][0] for i in range(seed)]
+    return res
 
+def mixed_strategy3(G, seed):
+    deg_cen = degree_centrality(G)
+    close_cen = closeness_centrality(G)
+    bet_cen = betweenness_centrality(G)
+    clust = clustering(G)
+    tris= triangles(G)
+    tsum = sum(tris.values())
+    combined_scores = {node:0.4*deg_cen[node]+0.3*close_cen[node]+0.2*bet_cen[node]+0.1*clust[node]for node in G.nodes}
+    sorted_scores = sorted(combined_scores.items(), key=lambda scores:scores[1], reverse=True)
+    res = [sorted_scores[i][0] for i in range(seed)]
+    return res
 
 if __name__=='__main__':
     if RUN_ALL_GRAPHS:
@@ -89,13 +114,3 @@ if __name__=='__main__':
     else:
         G, seed, adj_list = testing.read_graph(GRAPH_DIR+'/'+SINGLE_GRAPH)
         communicability_strategy(G, seed)
-
-        
-        
-
-
-
-
-
-
-            

@@ -1,26 +1,42 @@
 from testing import max_neighbors_strat, centrality_strategy, output_to_submission, read_graph
 from testing import output_random_strategy
-from other_strategies import communicability_strategy
+from other_strategies import communicability_strategy, mixed_strategy2, mixed_strategy3
 from spectral_clustering import spectral_strategy
+import sim
 
-GRAPH_FILE = 'RR.10.52.json'
+GRAPH_FILE = 'J.20.35.json'
 
 if __name__ == '__main__':
-    G, seed, _ = read_graph('graphs/' + GRAPH_FILE)
-    #output_random_strategy(G, seed, GRAPH_FILE)
+    G, seed, adj_list = read_graph('graphs/' + GRAPH_FILE)
+    output_random_strategy(G, seed, GRAPH_FILE)
     #strat = max_neighbors_strat(G, seed)
     #strat = centrality_strategy(G, seed, 'eigenvector')
     com_strat = communicability_strategy(G, seed)
     spec_strat = spectral_strategy(G, seed)
-    output_file = 'submissions/' + ''.join(GRAPH_FILE.split('.')[:3]) + 'comspec' + '.txt'
-    strategy_string = ''
-    for _ in range(30):
-        for node in spec_strat:
-            strategy_string += node + '\n'
-    for _ in range(20):
-        for node in com_strat:
-            strategy_string += node + '\n'
-    f = open(output_file, 'w')
-    f.write(strategy_string)
-    f.close()
-    #output_to_submission(GRAPH_FILE, com_strat, 'com')
+    mixed_strat = mixed_strategy3(G, seed)
+    max_strat = max_neighbors_strat(G, seed)
+    base_strat = centrality_strategy(G, seed, 'degree')
+    strats = [com_strat, spec_strat, mixed_strat, max_strat, base_strat]
+    diffs = {i:0 for i in range(len(strats))}
+    for i in range(len(strats)):
+        for j in range(i+1, len(strats)):
+            strat_dict = {i:strats[i],j:strats[j]}
+            result = sim.run(adj_list, strat_dict)
+            if result[i] > result[j]:
+                diffs[i] += result[i] - result[j]
+                diffs[j] -= result[i] - result[j]
+            elif result[j] > result[i]:
+                diffs[j] += result[j] - result[i]
+                diffs[i] -= result[j] - result[i]
+    print(diffs)
+    max_diff = 2**-31
+    best_strat = None
+    for i in diffs:
+        if diffs[i] > max_diff:
+            max_diff = diffs[i]
+            best_strat = i
+    strat = strats[best_strat]
+    print(strat)
+    print(sim.run(adj_list, {best_strat:strat, 'base':base_strat}))
+    output_file = 'submissions/' + ''.join(GRAPH_FILE.split('.')[:3]) + '.txt'
+    output_to_submission(GRAPH_FILE, strat, '')
