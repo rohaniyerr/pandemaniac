@@ -1,7 +1,10 @@
 import requests
+
 BASE_URL = 'http://52.9.240.217/'
 NUM_SECTIONS = 10
-GRAPHS = ['G.10.11', 'G.10.12', 'O.10.13', 'O.10.14']
+GRAPHS = ['G.10.21', 'G.10.22', 'O.10.23', 'O.10.24']
+JUNGLE_GRAPHS = ['J.20.25', 'J.20.26', 'J.30.27']
+
 def extract_data():
     graph_data = {}
     payload = {
@@ -19,11 +22,11 @@ def extract_data():
                 if j == NUM_SECTIONS-1:
                     max_deg_idx = data.find('max degree', section_indices[j])
                     num_nodes_idx = data.find('number of nodes', section_indices[j])
-                    total_deg_idx = data.find('total degrees', section_indices[j])
+                    total_deg_idx = data.find('unique edges (.5 = self edge)', section_indices[j])
                 else:
                     max_deg_idx = data.find('max degree', section_indices[j], section_indices[j+1]-1)
                     num_nodes_idx = data.find('number of nodes', section_indices[j], section_indices[j+1]-1)
-                    total_deg_idx = data.find('total degrees', section_indices[j], section_indices[j+1]-1)
+                    total_deg_idx = data.find('unique edges (.5 = self edge)', section_indices[j], section_indices[j+1]-1)
                 max_deg = ''.join(filter(str.isdigit, data[max_deg_idx+1:max_deg_idx+100]))
                 num_nodes = ''.join(filter(str.isdigit, data[num_nodes_idx+1:num_nodes_idx+100]))
                 total_deg = ''.join(filter(str.isdigit, data[total_deg_idx+1:total_deg_idx+100]))
