@@ -12,7 +12,7 @@ def extract_data():
         'password': 'eYdFLA5AaPDV'
     }
     with requests.Session() as s:
-        for graph in GRAPHS:
+        for graph in JUNGLE_GRAPHS:
             _ = s.post(BASE_URL+'login', data=payload)
             resp = s.get(BASE_URL+'submit/'+graph)
             data = resp.text

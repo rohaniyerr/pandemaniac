@@ -32,11 +32,11 @@ if __name__== '__main__':
             #avg = average_node_score(max_degree,num_nodes,total_degree)
             opp = opportunistic_score(num_nodes, total_degree)
             conn = connectivity_score(max_degree, num_nodes, total_degree)
-            section_scores[section] = opp
+            section_scores[section] = conn
         graph_scores[graph] = section_scores
-    budget = 160
-    # our budget = 603, TA budget = 169
-    save = 5
+    budget = 999
+    # our budget = , TA budget = 61
+    save = 0
     start = 0
     bid_sections = 10
     for graph in graph_scores:
